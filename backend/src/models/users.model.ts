@@ -28,6 +28,14 @@ export default function (sequelize: Sequelize): typeof UserModel {
         allowNull: false,
         type: DataTypes.STRING(255),
       },
+      first_name: {
+        allowNull: false,
+        type: DataTypes.STRING(255),
+      },
+      last_name: {
+        allowNull: false,
+        type: DataTypes.STRING(255),
+      },
     },
     {
       tableName: 'users',
