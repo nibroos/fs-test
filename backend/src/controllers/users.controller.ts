@@ -3,12 +3,26 @@ import { Container } from 'typedi';
 import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
 import { UserService } from '@services/users.service';
+import { QueryTypes } from 'sequelize';
 
 export class UserController {
   public user = Container.get(UserService);
+  public s = { type: QueryTypes.SELECT }
 
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      console.log(req.body);
+      const { page, per_page } = req.body
+
+      let qBind = ''
+      let qOffset: string | number = ''
+      let qPaginate = ''
+
+      if (page && per_page) {
+        qOffset = (+page - 1) * per_page;
+        qPaginate = `limit ${per_page} offset ${qOffset}`
+      }
+
       const findAllUsersData: User[] = await this.user.findAllUser();
 
       res.status(200).json({ data: findAllUsersData, message: 'findAll' });

@@ -27,10 +27,22 @@ module.exports = {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        first_name: Sequelize.STRING,
+        first_name: {
+          type: Sequelize.STRING,
+          allowNull: true,
+        },
         last_name: {
           type: Sequelize.STRING,
           allowNull: true,
+        },
+
+        created_at: {
+          type: Sequelize.DATE,
+          allowNull: false,
+        },
+        updated_at: {
+          type: Sequelize.DATE,
+          allowNull: false,
         },
       });
       await transaction.commit();
