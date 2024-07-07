@@ -21,7 +21,55 @@ export const ValidationMiddleware = (type: any, skipMissingProperties = false, w
       })
       .catch((errors: ValidationError[]) => {
         const message = errors.map((error: ValidationError) => Object.values(error.constraints)).join(', ');
-        next(new HttpException(400, message));
+        // console.log(errors, 'errors validationerror');
+
+        // next(new HttpException(400, message, errors));
+        res.status(400).json({
+          status: 400,
+          message,
+          errors: transformErrors(errors)
+          // errors: errors.map((error: ValidationError) => {
+          // return {
+          //   property: error.property,
+          //   value: error.value,
+          //   constraints: error.constraints
+          // };
+          // })
+        })
       });
   };
 };
+
+type Errors = {
+  [key: string]: string[];
+};
+
+function transformErrors(validationErrors: ValidationError[]): Errors {
+  const errors: Errors = {};
+
+  function traverse(errors: Errors, path: string, validationError: ValidationError) {
+    if (validationError.constraints) {
+      const fullPath = path ? `${path}.${validationError.property}` : validationError.property;
+      if (!errors[fullPath]) {
+        errors[fullPath] = [];
+      }
+      Object.values(validationError.constraints).forEach((message) => {
+        errors[fullPath].push(message);
+      });
+    }
+
+    if (validationError.children && validationError.children.length) {
+      validationError.children.forEach((childError) => {
+        const childPath = path ? `${path}.${validationError.property}` : validationError.property;
+        traverse(errors, childPath, childError);
+      });
+    }
+  }
+
+  validationErrors.forEach((validationError) => {
+    traverse(errors, '', validationError);
+  });
+
+  return errors;
+}
+

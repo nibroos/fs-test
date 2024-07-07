@@ -7,18 +7,23 @@ import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import type { } from '@interfaces/auth.interface';
 
 const getAuthorization = (req) => {
-  const coockie = req.cookies['Authorization'];
-  if (coockie) return coockie;
+  const cookie = req.cookies['Authorization'];
+  if (cookie) return cookie;
 
   const header = req.header('Authorization');
   if (header) return header.split('Bearer ')[1];
+
+  console.log(header, 'cookie header');
+
 
   return null;
 }
 
 export const AuthMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
+
     const Authorization = getAuthorization(req);
+    // console.log(Authorization, 'Authorization');
 
     if (Authorization) {
       const { id } = verify(Authorization, SECRET_KEY) as DataStoredInToken;

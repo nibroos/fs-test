@@ -11,9 +11,9 @@ export class AuthController {
   public signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userData: CreateUserDto = req.body;
-      const signUpUserData: User = await this.auth.signup(userData);
+      const { user, cookie, tokenData } = await this.auth.signup(userData);
 
-      res.status(201).json({ data: signUpUserData, message: 'signup' });
+      res.status(201).json({ data: user, message: 'signup', cookie, tokenData });
     } catch (error) {
       next(error);
     }
@@ -22,10 +22,10 @@ export class AuthController {
   public logIn = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userData: CreateUserDto = req.body;
-      const { cookie, findUser } = await this.auth.login(userData);
+      const { cookie, findUser, tokenData } = await this.auth.login(userData);
 
       res.setHeader('Set-Cookie', [cookie]);
-      res.status(200).json({ data: findUser, message: 'login' });
+      res.status(200).json({ data: findUser, message: 'login', cookie: cookie, tokenData });
     } catch (error) {
       next(error);
     }

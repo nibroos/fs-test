@@ -1,31 +1,21 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto, UpdateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
 import { UserService } from '@services/users.service';
-import { QueryTypes } from 'sequelize';
+import { DB } from '@/database';
+import { DataResponseType } from '@/type/ResponseType';
+import { HttpException } from '@/exceptions/HttpException';
 
 export class UserController {
   public user = Container.get(UserService);
-  public s = { type: QueryTypes.SELECT }
 
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(req.body);
-      const { page, per_page } = req.body
+      const findAllUsersData: DataResponseType = await this.user.findAllUser(req);
+      // const findAllUsersData: DataResponseType = await this.user.findAllUserRaw(req);
 
-      let qBind = ''
-      let qOffset: string | number = ''
-      let qPaginate = ''
-
-      if (page && per_page) {
-        qOffset = (+page - 1) * per_page;
-        qPaginate = `limit ${per_page} offset ${qOffset}`
-      }
-
-      const findAllUsersData: User[] = await this.user.findAllUser();
-
-      res.status(200).json({ data: findAllUsersData, message: 'findAll' });
+      res.status(200).json({ data: findAllUsersData.data, message: 'findAll', meta: findAllUsersData.meta });
     } catch (error) {
       next(error);
     }
@@ -33,8 +23,7 @@ export class UserController {
 
   public getUserById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = Number(req.params.id);
-      const findOneUserData: User = await this.user.findUserById(userId);
+      const findOneUserData: User = await this.user.findUserById(req);
 
       res.status(200).json({ data: findOneUserData, message: 'findOne' });
     } catch (error) {
@@ -43,35 +32,54 @@ export class UserController {
   };
 
   public createUser = async (req: Request, res: Response, next: NextFunction) => {
+    const t = await DB.sq.transaction();
+
     try {
       const userData: CreateUserDto = req.body;
       const createUserData: User = await this.user.createUser(userData);
 
+      await t.commit();
+
       res.status(201).json({ data: createUserData, message: 'created' });
     } catch (error) {
+      await t.rollback()
       next(error);
     }
   };
 
   public updateUser = async (req: Request, res: Response, next: NextFunction) => {
+    const t = await DB.sq.transaction();
+
     try {
-      const userId = Number(req.params.id);
-      const userData: CreateUserDto = req.body;
-      const updateUserData: User = await this.user.updateUser(userId, userData);
+      const userData: UpdateUserDto = req.body;
+
+      const findUser: User = await this.user.findUserByUuid(userData.uuid);
+      if (!findUser) res.status(404).json({ data: null, message: "User doesn't exist" });
+
+      const updateUserData: User = await this.user.updateUser(req, userData);
+
+      await t.commit()
 
       res.status(200).json({ data: updateUserData, message: 'updated' });
     } catch (error) {
+      await t.rollback()
       next(error);
     }
   };
 
   public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+    const t = await DB.sq.transaction();
     try {
-      const userId = Number(req.params.id);
-      const deleteUserData: User = await this.user.deleteUser(userId);
+      const findUser: User = await this.user.findUserByUuid(req.body.uuid);
+      if (!findUser) res.status(404).json({ data: null, message: "User doesn't exist" });
+
+      const deleteUserData: User = await this.user.deleteUser(req.body.uuid, findUser);
+
+      await t.commit()
 
       res.status(200).json({ data: deleteUserData, message: 'deleted' });
     } catch (error) {
+      await t.rollback()
       next(error);
     }
   };

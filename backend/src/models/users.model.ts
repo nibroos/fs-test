@@ -5,8 +5,16 @@ export type UserCreationAttributes = Optional<User, 'id' | 'email' | 'password'>
 
 export class UserModel extends Model<User, UserCreationAttributes> implements User {
   public id: number;
+  public uuid: string;
   public email: string;
   public password: string;
+
+  toJSON() {
+    return {
+      ...this.get(),
+      id: undefined,
+    }
+  }
 }
 
 export default function (sequelize: Sequelize): typeof UserModel {
@@ -16,6 +24,11 @@ export default function (sequelize: Sequelize): typeof UserModel {
         autoIncrement: true,
         primaryKey: true,
         type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      uuid: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
       },
       email: {
         allowNull: false,
@@ -33,22 +46,16 @@ export default function (sequelize: Sequelize): typeof UserModel {
         allowNull: true,
         type: DataTypes.STRING(255),
       },
-      created_at: {
-        allowNull: false,
-        type: DataTypes.DATE,
-      },
-      updated_at: {
-        allowNull: false,
-        type: DataTypes.DATE,
-      },
     },
     {
-      tableName: 'users',
       sequelize,
+      tableName: 'users',
       timestamps: true,
       underscored: true,
+      paranoid: true,
       createdAt: 'created_at',
       updatedAt: 'updated_at',
+      deletedAt: 'deleted_at',
     },
   );
 

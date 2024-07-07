@@ -1,7 +1,7 @@
 import { compare, hash } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { Service } from 'typedi';
-import { SECRET_KEY } from '@config';
+import { SECRET_KEY, SESSIONS_LIFETIME } from '@config';
 import { DB } from '@database';
 import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@/exceptions/HttpException';
@@ -10,7 +10,7 @@ import { User } from '@interfaces/users.interface';
 
 const createToken = (user: User): TokenData => {
   const dataStoredInToken: DataStoredInToken = { id: user.id };
-  const expiresIn: number = 60 * 60;
+  const expiresIn: number = Number(SESSIONS_LIFETIME || 60) * 60;
 
   return { expiresIn, token: sign(dataStoredInToken, SECRET_KEY, { expiresIn }) };
 }
@@ -20,17 +20,20 @@ const createCookie = (tokenData: TokenData): string => {
 }
 @Service()
 export class AuthService {
-  public async signup(userData: CreateUserDto): Promise<User> {
+  public async signup(userData: CreateUserDto): Promise<{ user: User, cookie: string, tokenData: any }> {
     const findUser: User = await DB.Users.findOne({ where: { email: userData.email } });
     if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
 
     const hashedPassword = await hash(userData.password, 10);
     const createUserData: User = await DB.Users.create({ ...userData, password: hashedPassword });
 
-    return createUserData;
+    const tokenData = createToken(createUserData);
+    const cookie = createCookie(tokenData);
+
+    return { user: createUserData, cookie, tokenData };
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
+  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User, tokenData: any }> {
     const findUser: User = await DB.Users.findOne({ where: { email: userData.email } });
     if (!findUser) throw new HttpException(409, `This email ${userData.email} was not found`);
 
@@ -40,7 +43,7 @@ export class AuthService {
     const tokenData = createToken(findUser);
     const cookie = createCookie(tokenData);
 
-    return { cookie, findUser };
+    return { cookie, findUser, tokenData };
   }
 
   public async logout(userData: User): Promise<User> {
