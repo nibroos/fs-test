@@ -52,4 +52,17 @@ export class AuthService {
 
     return findUser;
   }
+
+  public async getProfile(user: User): Promise<{
+    user: User,
+    token: TokenData
+  }> {
+    const findUser: User = await DB.Users.findOne({ where: { id: user.id } });
+    const token = createToken(findUser);
+
+    return {
+      user: findUser,
+      token: token
+    };
+  }
 }

@@ -27,11 +27,11 @@ export class UserService {
     }
 
     if (first_name) where.first_name = {
-      [Op.like]: first_name
+      [Op.substring]: first_name
     }
 
     if (last_name) where.last_name = {
-      [Op.like]: last_name
+      [Op.substring]: last_name
     }
 
     order_column = order_column ? order_column : 'created_at'

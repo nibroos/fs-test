@@ -12,7 +12,7 @@ import { DataResponseType } from '@/type/ResponseType';
 @Service()
 export class VendorService {
   public async findAllVendor(req: Request): Promise<DataResponseType> {
-    let { name, uuid, page, per_page, order_column, order_direction }: VendorListFiltersType = req.body
+    let { name, unit_id, uuid, page, per_page, order_column, order_direction }: VendorListFiltersType = req.body
 
     let offset: number = 0
     offset = (+page - 1) * per_page;
@@ -25,7 +25,7 @@ export class VendorService {
     }
 
     if (name) where.name = {
-      [Op.like]: name
+      [Op.substring]: name
     }
 
     order_column = order_column ? order_column : 'created_at'

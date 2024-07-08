@@ -1,19 +1,21 @@
-const router = useRoute()
-
 const useLayoutsStore = defineStore({
   id: 'layoutsStore',
-  state: () => {
-    return {
-      titlePath: 'testlayout',
-      subTitlePath: '',
-      lastPathSegment: '',
-      parentTitle: '',
-      topTitle: ''
-    }
-  },
+  state: () => ({
+    titlePath: '',
+    subTitlePath: '',
+    lastPathSegment: '',
+    parentTitle: '',
+    topTitle: '',
+    currentRouteName: '',
+    lastFullPath: '',
+    isCloseSidebar: true,
+    layoutName: 'guest' as any
+  }),
   actions: {
     defineTitlePath(config?: any) {
-      let routePath = router.path
+      const route = useRoute()
+
+      let routePath = route.path
       let pathArray = routePath.split('/')
       let titlePath = pathArray[1]
       let subTitlePath = pathArray[3]
@@ -29,12 +31,19 @@ const useLayoutsStore = defineStore({
       this.lastPathSegment = config?.lastPathSegment ?? lastPathSegment
       this.parentTitle = config?.parentTitle ?? ''
       this.topTitle = config?.topTitle ?? titlePath
+      this.currentRouteName = route.name?.toString() ?? ''
+      // this.lastFullPath = window.length > 2 ? window.history.state.path : ''
     },
     hasHistory(): boolean {
       return window.history.length > 2
     }
   },
-  persist: true
+  persist: [
+    {
+      paths: ['lastFullPath']
+      // storage: localStorage
+    }
+  ]
 })
 
 export default useLayoutsStore

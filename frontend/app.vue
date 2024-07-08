@@ -12,9 +12,12 @@
     </NuxtLayout>
   </div> -->
   <div>
-    <NuxtLoadingIndicator :throttle="0" :height="2" class="bg-orange" />
-    <NuxtLayout name="guest">
+    <NuxtLoadingIndicator :throttle="0" :height="2" class="bg-sky-700" />
+    <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
   </div>
 </template>
+
+<script setup lang="ts">
+</script>

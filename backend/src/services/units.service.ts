@@ -27,7 +27,7 @@ export class UnitService {
     }
 
     if (name) where.name = {
-      [Op.like]: name
+      [Op.iLike]: `%${name}%` // name
     }
 
     order_column = order_column ? order_column : 'created_at'

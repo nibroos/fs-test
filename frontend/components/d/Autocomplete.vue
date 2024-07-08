@@ -193,7 +193,7 @@ const getList = async () => {
     response = await useMyFetch().get(apiUrl)
   }
 
-  isInitialLoad.value = false
+  isInitialLoad.value = true
 
   if (statusCode !== 200) {
     loadingData.value = false
@@ -242,7 +242,7 @@ const getSingleData = async (id: any) => {
     queryObjectSingle.value = cloneObject(queryObject.value)
 
     queryObjectSingle.value.page = 1
-    queryObjectSingle.value.id = id
+    queryObjectSingle.value[props.itemValue as any] = id
 
     response = await useMyFetch().post(props.singleApi, queryObjectSingle.value)
     delete queryObjectSingle.value.id
@@ -419,66 +419,29 @@ watch(
 </script>
 
 <template>
-  <v-autocomplete
-    ref="vAComp"
-    v-model="selected"
-    :items="options"
-    :item-title="props.itemTitle"
-    :item-value="props.itemValue"
-    :variant="props.variant"
-    :label="props.label"
-    :placeholder="props.placeholder"
-    :density="props.density"
-    :chips="props.chips"
-    :list-props="{ slim: true }"
-    no-filter
-    :loading="loadingSearch"
-    @update:search="innerSearch = $event"
-    @update:menu="onMenuChange"
-    :focused="isFocused"
-    @update:focused="onFocus"
-    :readonly="isReadOnly"
-    :clearable="props.clearable"
-    @click:clear="handleClear"
-    :disabled="props.disabled"
-    :class="props.aClass"
-    :multiple="props.multiple"
-    :return-object="returnObject"
-    :hide-details="props.hideDetails"
-  >
+  <v-autocomplete ref="vAComp" v-model="selected" :items="options" :item-title="props.itemTitle"
+    :item-value="props.itemValue" :variant="props.variant" :label="props.label" :placeholder="props.placeholder"
+    :density="props.density" :chips="props.chips" :list-props="{ slim: true }" no-filter :loading="loadingSearch"
+    @update:search="innerSearch = $event" @update:menu="onMenuChange" :focused="isFocused" @update:focused="onFocus"
+    :readonly="isReadOnly" :clearable="props.clearable" @click:clear="handleClear" :disabled="props.disabled"
+    :class="props.aClass" :multiple="props.multiple" :return-object="returnObject" :hide-details="props.hideDetails">
     <template v-slot:append-item>
-      <div
-        v-if="!paginationDone && !!api && options.length > 0"
-        v-intersect="onIntersect"
-        class="pa-4 teal--text"
-      >
+      <div v-if="!paginationDone && !!api && options.length > 0" v-intersect="onIntersect" class="pa-4 teal--text">
         Loading more items ...
       </div>
     </template>
     <template v-slot:selection="{ item }">
       <span class="whitespace-nowrap">
-        <d-shorttext
-          v-if="props.multiple"
-          :text="item.title"
-          :max-length="Number(props.maxLengthDisplay)"
-          :class="props.aClass"
-          :start-align="props.startAlignDisplay"
-        />
-        <d-shorttext
-          v-else
-          :text="displayTitle || item.title"
-          :max-length="Number(props.maxLengthDisplay)"
-          :class="props.aClass"
-          :start-align="props.startAlignDisplay"
-        />
+        <d-shorttext v-if="props.multiple" :text="item.title" :max-length="Number(props.maxLengthDisplay)"
+          :class="props.aClass" :start-align="props.startAlignDisplay" />
+        <d-shorttext v-else :text="displayTitle || item.title" :max-length="Number(props.maxLengthDisplay)"
+          :class="props.aClass" :start-align="props.startAlignDisplay" />
       </span>
     </template>
 
     <template #no-data>
-      <div
-        v-if="!loadingSearch && !isInitialLoad && options.length === 0"
-        class="font-weight-bold flex items-center justify-center p-3 text-center"
-      >
+      <div v-if="!loadingSearch && !isInitialLoad && options.length === 0"
+        class="font-weight-bold flex items-center justify-center p-3 text-center">
         <div>No data available</div>
       </div>
       <div v-else-if="loadingSearch || isInitialLoad">

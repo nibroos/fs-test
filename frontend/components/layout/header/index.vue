@@ -1,37 +1,22 @@
 <script setup lang="ts">
-import { loginStore } from '~/stores/loginStore'
-import { useAlert } from '~/composables/useAlert'
+import { useUnitStore } from '~/stores/UnitStore';
 
-const loginUser = loginStore()
-
-const handleLogout = async () => {
-  const isConfirmed = await useAlert.showPopupConfirmation(
-    'Logout',
-    'Are you sure you want to log out?',
-    'Logout',
-    true
-  )
-  if (isConfirmed) {
-    await loginUser.logoutUser()
-  }
-}
+const unitStore = useUnitStore()
+const { unitInput } = storeToRefs(unitStore)
 </script>
 
 <template>
   <v-menu :close-on-content-click="false">
     <template v-slot:activator="{ props }">
-      <div class="mr-5 flex items-center gap-2">
-        <button
-          class="rounded-full p-2 opacity-70 transition-all delay-200 duration-300 hover:bg-slate-300 hover:opacity-60"
-        >
-          <v-icon icon="mdi-bell"></v-icon>
-        </button>
-        <button
-          class="rounded-full p-2 opacity-70 transition-all delay-200 duration-300 hover:bg-slate-300 hover:opacity-60"
-          @click="handleLogout"
-        >
-          <v-icon icon="mdi-logout"></v-icon>
-        </button>
+      <div class="mr-5 flex items-center gap-2 grow">
+
+        <d-autocomplete v-model="unitInput.option" api="/units/list" single-api="/units/show" inner-search-key="name"
+          :query="{
+            page: 1,
+            per_page: 10
+          }" item-title="name" :initial-value="null" item-value="uuid" uid="uuid" label="Unit" method-api="post"
+          items-prop="data" mapping-detail="data" max-length-display="70"></d-autocomplete>
+
       </div>
     </template>
   </v-menu>

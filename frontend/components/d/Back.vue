@@ -8,7 +8,7 @@ interface IProps {
 }
 
 const props = withDefaults(defineProps<IProps>(), {
-  parentPath: '/dashboard',
+  parentPath: '/',
   cta: 'Back',
   noIcon: false,
   class: '',
@@ -17,15 +17,11 @@ const props = withDefaults(defineProps<IProps>(), {
 </script>
 
 <template>
-  <button
-    :class="
-      classMerge(
-        'flex cursor-pointer items-center gap-x-2 border-solid p-2 transition-all ease-in-out hover:bg-zinc-100 sm:gap-x-1 md:gap-x-2',
-        props.class
-      )
-    "
-    @click="navigateTo(props.parentPath)"
-  >
+  <button :class="classMerge(
+    'flex cursor-pointer items-center gap-x-2 border-solid p-2 transition-all ease-in-out hover:bg-zinc-100 sm:gap-x-1 md:gap-x-2',
+    props.class
+  )
+    " @click="navigateTo(props.parentPath)">
     <v-icon icon="mdi-keyboard-backspace" size="25" v-if="!props.noIcon" />
     <div :class="classMerge('font-medium', props.textClass)">
       {{ props.cta }}
