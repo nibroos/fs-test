@@ -1,0 +1,26 @@
+
+// https://nuxt.com/docs/guide/concepts/typescript
+{
+  "extends": "./.nuxt/tsconfig.json",
+  "include": [
+    "./.nuxt/nuxt.d.ts",
+    "./**/*",
+    "./node_modules/nuxt-icon/runtime",
+    "./node_modules/@pinia/nuxt/runtime",
+    "./node_modules/@nuxt/devtools/runtime",
+    "./node_modules/@nuxt/telemetry/runtime"
+  ],
+  "exclude": [
+    "./node_modules",
+    "./node_modules/nuxt/node_modules",
+    "./node_modules/nuxt-icon/runtime/server",
+    "./node_modules/@pinia/nuxt/runtime/server",
+    "./node_modules/@nuxt/devtools/runtime/server",
+    "./node_modules/@nuxt/telemetry/runtime/server",
+    "./dist",
+    "./.output"
+  ],
+  "compilerOptions": {
+    "types": ["vuetify"]
+  }
+}
