@@ -30,8 +30,8 @@ export class UnitService {
       [Op.iLike]: `%${name}%` // name
     }
 
-    order_column = order_column ? order_column : 'created_at'
-    order_direction = order_direction ? order_direction : 'DESC'
+    order_column = order_column ? order_column : 'name'
+    order_direction = order_direction ? order_direction : 'ASC'
     order = [[order_column, order_direction]]
 
     const data: Unit[] = await DB.Units
@@ -50,6 +50,7 @@ export class UnitService {
 
     const total = Number(count.count);
     const last = Math.ceil(total / per_page);
+    const next_page = page < last ? Number(page) + 1 : null
 
     return {
       data,
@@ -57,6 +58,7 @@ export class UnitService {
         page,
         per_page,
         total,
+        next_page,
         last
       }
     };
@@ -85,6 +87,7 @@ export class UnitService {
 
     const total = Number(count[0].total);
     const last = Math.ceil(total / per_page);
+    const next_page = page < last ? Number(page) + 1 : null
 
     return {
       data,
@@ -92,6 +95,7 @@ export class UnitService {
         page,
         per_page,
         total,
+        next_page,
         last
       }
     };

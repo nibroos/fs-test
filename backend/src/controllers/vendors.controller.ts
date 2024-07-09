@@ -40,7 +40,7 @@ export class VendorController {
 
       await t.commit();
 
-      res.status(201).json({ data: createVendorData, message: 'created' });
+      res.status(200).json({ data: createVendorData, message: 'created' });
     } catch (error) {
       await t.rollback()
       next(error);
@@ -70,21 +70,15 @@ export class VendorController {
   public deleteVendor = async (req: Request, res: Response, next: NextFunction) => {
     const t = await DB.sq.transaction();
     try {
-      console.log(req.body.uuid, 'cek uuid5');
-
       const findVendor: Vendor = await this.vendor.findVendorByUuid(req.body.uuid);
-      console.log(req.body.uuid, 'cek uuid6');
       if (!findVendor) res.status(404).json({ data: findVendor, message: "Vendor doesn't exist" });
-      console.log(req.body.uuid, 'cek uuid7');
 
       const deleteVendorData: Vendor = await this.vendor.deleteVendor(req.body.uuid, findVendor);
-      console.log(req.body.uuid, 'cek uuid8');
 
       await t.commit()
 
       res.status(200).json({ data: deleteVendorData, message: 'deleted' });
     } catch (error) {
-      console.log(error, 'cek uuid8');
       await t.rollback()
       next(error);
     }

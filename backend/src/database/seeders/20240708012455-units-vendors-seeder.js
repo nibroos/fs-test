@@ -36,7 +36,7 @@ module.exports = {
           let randomUnitId = allUnits[Math.floor(Math.random() * allUnits.length)].id;
 
           const seedData = {
-            name: faker.company.name() + faker.location.country(),
+            name: faker.company.name() + ' - ' + faker.location.country(),
             uuid: randomUUID(),
             unit_id: randomUnitId,
             address: faker.location.streetAddress(),

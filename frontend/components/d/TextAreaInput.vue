@@ -29,7 +29,7 @@ const props = withDefaults(defineProps<IProps>(), {
   label: '',
   density: 'compact',
   clearable: true,
-  placeholder: '',
+  placeholder: (props) => `Enter ${props.label}`,
   type: 'text',
   class: '',
   errors: () => [],
@@ -66,24 +66,10 @@ watch(
 )
 </script>
 <template>
-  <div
-    :class="{ 'gap-2': slots.details || errors.length > 0 }"
-    class="flex flex-col"
-  >
-    <v-textarea
-      :label="label"
-      :variant="variant"
-      :model-value="realValue"
-      :density="density"
-      :placeholder="placeholder"
-      :type="type"
-      :class="classMerge('w-full', props.class)"
-      :rows="rows"
-      :auto-grow="autoGrow"
-      :clearable="clearable"
-      @update:model-value="updateValue"
-      hide-details
-    ></v-textarea>
+  <div :class="{ 'gap-2': slots.details || errors.length > 0 }" class="flex flex-col">
+    <v-textarea :label="label" :variant="variant" :model-value="realValue" :density="density" :placeholder="placeholder"
+      :type="type" :class="classMerge('w-full', props.class)" :rows="rows" :auto-grow="autoGrow" :clearable="clearable"
+      @update:model-value="updateValue" hide-details></v-textarea>
     <div v-if="slots.details && errors.length == 0" class="flex flex-col gap-1">
       <slot name="details" />
     </div>

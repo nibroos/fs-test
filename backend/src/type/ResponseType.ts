@@ -11,6 +11,7 @@ export type MetaResponseType = {
   page: number
   per_page: number
   total: number
+  next_page: number
   last: number
 }
 

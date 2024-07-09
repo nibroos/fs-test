@@ -2,6 +2,9 @@ import { IsUnique } from '@/utils/customValidator';
 import { IsString, IsEmail, IsNotEmpty, MinLength, MaxLength, IsOptional, ValidateIf } from 'class-validator';
 
 export class CreateVendorDto {
+  @IsOptional()
+  public uuid?: string
+
   @IsNotEmpty()
   @IsString()
   @IsUnique('vendors', 'name')
@@ -10,6 +13,10 @@ export class CreateVendorDto {
   @IsString()
   @IsNotEmpty()
   public unit_id: string
+
+  @IsOptional()
+  @IsString()
+  public address?: string
 }
 
 export class UpdateVendorDto {

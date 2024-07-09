@@ -55,7 +55,7 @@ onBeforeUnmount(() => {
       <!---Sidebar -->
       <!-- ---------------------------------------------- -->
       <v-navigation-drawer left class="leftSidebar transition delay-75 ease-in-out" elevation="1" :rail="isCloseSidebar"
-        expand-on-hover color="#1E293A" temporary permanent>
+        expand-on-hover temporary permanent>
         <LayoutSidebar />
       </v-navigation-drawer>
 

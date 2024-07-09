@@ -40,7 +40,7 @@ export class UnitController {
 
       await t.commit();
 
-      res.status(201).json({ data: createUnitData, message: 'created' });
+      res.status(200).json({ data: createUnitData, message: 'created' });
     } catch (error) {
       await t.rollback()
       next(error);

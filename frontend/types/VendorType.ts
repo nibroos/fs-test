@@ -1,6 +1,6 @@
 export type VendorType = {
   id?: number | null;
-  uuid?: string;
+  uuid?: string | null;
   name: string;
   address?: string;
   unit_id?: number | string | null;

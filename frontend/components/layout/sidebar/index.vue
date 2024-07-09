@@ -12,7 +12,7 @@ const { isCloseSidebar } = storeToRefs(layoutState)
 const itemVendors = [
   {
     title: 'Vendor',
-    icon: 'mdi-truck-delivery-outline',
+    icon: 'mdi-account-box',
     link: '/vendor',
     permissions: ['']
   }
@@ -65,20 +65,18 @@ onMounted(async () => {
     <div class="flex w-full flex-col gap-y-5 py-5">
       <!-- Menu List -->
       <div class="max-h-[80vh] w-full overflow-y-auto">
-        <v-list v-if="useAuth.permit('REPORT_READ')" color="#fff" density="compact" lines="one">
+        <v-list density="compact" lines="one">
 
-          <v-list-item color="#898F99" to="/" rounded="lg">
+          <v-list-item to="/" rounded="lg">
             <template #prepend>
-              <v-icon>mdi-view-dashboard-outline</v-icon>
+              <v-icon>mdi-view-dashboard</v-icon>
             </template>
 
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item>
         </v-list>
-        <!-- list Management -->
-        <v-list color="#fff" density="comfortable">
+        <v-list density="comfortable">
 
-          <!-- List static -->
           <template v-for="(item, i) in itemVendors" :key="i">
             <v-list-item v-if="useAuth.permit(item.permissions)" :value="item" color="#898F99" rounded="lg"
               :to="item.link" :title="item.title">
@@ -91,13 +89,10 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- Profile Account -->
-    <div
-      class="flex h-[77px] w-full cursor-pointer text-center items-center justify-stretch gap-x-5 bg-slate-900 transition-all ease-in-out hover:bg-slate-900/60 lg:px-2"
-      @click="handleLogout">
-      <div class="w-full">
-        Logout
-      </div>
+    <div class="flex h-[77px] w-full text-center items-center justify-center gap-x-5 transition-all ease-in-out px-4">
+
+      <d-button @click="handleLogout" class="justify-center rounded-lg bg-[#4094D4] hover:!bg-[#3476a8] w-full"
+        text-class="text-white" :cta="isExpanded ? 'Logout' : '<-'" :no-icon="true"></d-button>
     </div>
   </div>
 </template>

@@ -8,6 +8,7 @@ import { QueryTypes } from 'sequelize';
 import { Op } from 'sequelize';
 import { VendorListFiltersType } from '@/type/filters/VendorFiltersType';
 import { DataResponseType } from '@/type/ResponseType';
+import { cloneObject, flattenObject } from '@/utils/objectFormat';
 
 @Service()
 export class VendorService {
@@ -17,15 +18,35 @@ export class VendorService {
     let offset: number = 0
     offset = (+page - 1) * per_page;
 
-    let where: any = {}
     let order: any[] = []
-
-    if (uuid) where.uuid = {
-      [Op.eq]: uuid
+    let where: any = {
     }
 
-    if (name) where.name = {
-      [Op.substring]: name
+    where[Op.and] = [
+      {
+        [Op.or]: [
+          {
+            name: {
+              [Op.iLike]: `%${name}%`
+            }
+          },
+          {
+            address: {
+              [Op.iLike]: `%${name}%`
+            }
+          }
+        ]
+      },
+    ]
+
+    if (unit_id) {
+      unit_id = (await DB.Units.findOne({ where: { uuid: unit_id } })).id
+
+      where[Op.and].push({
+        unit_id: {
+          [Op.eq]: unit_id
+        }
+      })
     }
 
     order_column = order_column ? order_column : 'created_at'
@@ -48,6 +69,7 @@ export class VendorService {
 
     const total = Number(count.count);
     const last = Math.ceil(total / per_page);
+    const next_page = page < last ? Number(page) + 1 : null
 
     return {
       data,
@@ -55,6 +77,7 @@ export class VendorService {
         page,
         per_page,
         total,
+        next_page,
         last
       }
     };
@@ -83,6 +106,7 @@ export class VendorService {
 
     const total = Number(count[0].total);
     const last = Math.ceil(total / per_page);
+    const next_page = page < last ? Number(page) + 1 : null
 
     return {
       data,
@@ -90,6 +114,7 @@ export class VendorService {
         page,
         per_page,
         total,
+        next_page,
         last
       }
     };
@@ -100,11 +125,17 @@ export class VendorService {
 
     const findVendor: Vendor = await this.findVendorByUuid(uuid);
 
+    // let flattenVendor = flattenObject(findVendor);
+    // console.log('flattenVendor', flattenVendor);
+    console.log('flattenVendor', findVendor);
+
+
     return findVendor;
   }
 
   public async createVendor(vendorData: CreateVendorDto): Promise<Vendor> {
     const unit = await DB.Units.findOne({ where: { uuid: vendorData.unit_id } });
+    delete vendorData.uuid
 
     const createVendorData: Vendor = await DB.Vendors.create({ ...vendorData, unit_id: unit.id });
     return createVendorData;
@@ -113,7 +144,6 @@ export class VendorService {
   public async updateVendor(req: Request, vendorData: UpdateVendorDto): Promise<Vendor> {
     const { uuid } = req.body;
     const unit = await DB.Units.findOne({ where: { uuid: vendorData.unit_id } });
-    console.log(uuid, 'cek uuid update');
 
     const updateFields: UpdateVendorDto = { ...vendorData, unit_id: unit.id };
 
@@ -136,12 +166,9 @@ export class VendorService {
   public async findVendorByUuid(uuid: string): Promise<Vendor> {
     try {
 
-      console.log(uuid, 'cek uuid2');
-
-      const findVendor: Vendor = await DB.Vendors.findOne({ where: { uuid }, include: 'unit' });
+      const findVendor: Vendor = await DB.Vendors.findOne({ where: { uuid }, include: 'unit', raw: true });
       return findVendor;
     } catch (error) {
-      console.log(error, 'error apa');
 
       return null
     }

@@ -29,7 +29,7 @@ export const useUnitStore = defineStore(
         }
       },
       unitInput: {
-        option: null,
+        selected: null,
       },
       showModal: {
         create: false,

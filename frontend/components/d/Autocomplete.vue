@@ -90,7 +90,7 @@ const convertQuery = (searchValue?: string): string => {
   return qs.stringify(queryString)
 }
 
-watch(innerSearch, async (searchValue: string) => {
+watch(innerSearch, async (searchValue: string, oldSearchValue: string) => {
   if (!props.api) return
   if (isMenuShow.value) {
     loadingSearch.value = true
@@ -98,6 +98,11 @@ watch(innerSearch, async (searchValue: string) => {
 
     let response
     let apiUrl
+
+    if (searchValue !== oldSearchValue) {
+      page.value = 1
+    }
+
     if (props.methodApi === 'post') {
       queryObject.value.page = page.value
       response = await useMyFetch()
@@ -423,8 +428,9 @@ watch(
     :item-value="props.itemValue" :variant="props.variant" :label="props.label" :placeholder="props.placeholder"
     :density="props.density" :chips="props.chips" :list-props="{ slim: true }" no-filter :loading="loadingSearch"
     @update:search="innerSearch = $event" @update:menu="onMenuChange" :focused="isFocused" @update:focused="onFocus"
-    :readonly="isReadOnly" :clearable="props.clearable" @click:clear="handleClear" :disabled="props.disabled"
-    :class="props.aClass" :multiple="props.multiple" :return-object="returnObject" :hide-details="props.hideDetails">
+    :readonly="isReadOnly" :clearable="props.disabled ? false : props.clearable" @click:clear="handleClear"
+    :disabled="props.disabled" :class="props.aClass" :multiple="props.multiple" :return-object="returnObject"
+    :hide-details="props.hideDetails">
     <template v-slot:append-item>
       <div v-if="!paginationDone && !!api && options.length > 0" v-intersect="onIntersect" class="pa-4 teal--text">
         Loading more items ...

@@ -43,7 +43,7 @@ export const useVendorStore = defineStore(
       },
     }),
     actions: {
-      async getAllDataVendor() {
+      async getListVendor() {
         if (this.metaModal.index.loading) return
         this.metaModal.index.loading = true
 
@@ -55,7 +55,7 @@ export const useVendorStore = defineStore(
             `/vendors/list`,
             {
               ...this.qBody.index,
-              unit_id: unitInput.value.option
+              unit_id: unitInput.value.selected
             }
           )
 
@@ -74,11 +74,11 @@ export const useVendorStore = defineStore(
         }
       },
 
-      async createVendor(item: any) {
+      async createVendor() {
         try {
           const response = await useMyFetch().post(
-            '/vendors/store',
-            item
+            '/vendors/create',
+            this.formData
           )
           this.formData = cloneObject(useInitials.formCreateEditVendor)
 
@@ -96,25 +96,17 @@ export const useVendorStore = defineStore(
             { uuid }
           )
 
-          if (response.status === 200) {
-            response.data.data.forEach((po: any, iPo: number) => {
-              po.purchase_invoices.forEach((pod: any, iPod: number) => {
-                response.data.data[iPo].purchase_invoices[iPod].uid = randomId()
-              })
-            })
-          }
-
           return response
         } catch (err) {
           console.log('Failed To Get Detail Data Purchase Adjustment', err)
         }
       },
 
-      async updateVendor(item: any) {
+      async updateVendor() {
         try {
           const response = await useMyFetch().post(
             `/vendors/update`,
-            item
+            this.formData
           )
           if (response.status === 200) {
             useAlert.alertSuccess(response.data.message)
