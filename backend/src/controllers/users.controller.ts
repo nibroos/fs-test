@@ -13,7 +13,6 @@ export class UserController {
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const findAllUsersData: DataResponseType = await this.user.findAllUser(req);
-      // const findAllUsersData: DataResponseType = await this.user.findAllUserRaw(req);
 
       res.status(200).json({ data: findAllUsersData.data, message: 'findAll', meta: findAllUsersData.meta });
     } catch (error) {
@@ -40,7 +39,7 @@ export class UserController {
 
       await t.commit();
 
-      res.status(201).json({ data: createUserData, message: 'created' });
+      res.status(200).json({ data: createUserData, message: 'created' });
     } catch (error) {
       await t.rollback()
       next(error);

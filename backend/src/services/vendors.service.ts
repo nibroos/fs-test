@@ -15,6 +15,11 @@ export class VendorService {
   public async findAllVendor(req: Request): Promise<DataResponseType> {
     let { name, unit_id, uuid, page, per_page, order_column, order_direction }: VendorListFiltersType = req.body
 
+    page = page ? page : 1
+    per_page = per_page ? per_page : 10
+    order_column = order_column ? order_column : 'created_at'
+    order_direction = order_direction ? order_direction : 'ASC'
+
     let offset: number = 0
     offset = (+page - 1) * per_page;
 
@@ -49,8 +54,6 @@ export class VendorService {
       })
     }
 
-    order_column = order_column ? order_column : 'created_at'
-    order_direction = order_direction ? order_direction : 'DESC'
     order = [[order_column, order_direction]]
 
     const data: Vendor[] = await DB.Vendors

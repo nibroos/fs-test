@@ -17,7 +17,7 @@ export class AuthController {
       res.setHeader('Set-Cookie', [cookie]);
       let userflatten = cloneObject(user);
 
-      res.status(201).json({ data: { ...userflatten, ...tokenData }, message: 'signup', cookie, tokenData });
+      res.status(200).json({ data: { ...userflatten, ...tokenData }, message: 'signup', cookie, tokenData });
     } catch (error) {
       next(error);
     }

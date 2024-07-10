@@ -13,9 +13,6 @@ const getAuthorization = (req) => {
   const header = req.header('Authorization');
   if (header) return header.split('Bearer ')[1];
 
-  console.log(header, 'cookie header');
-
-
   return null;
 }
 
