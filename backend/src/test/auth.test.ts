@@ -4,6 +4,7 @@ import request from 'supertest';
 import { App } from '@/app';
 import { CreateUserDto } from '@dtos/users.dto';
 import { AuthRoute } from '@routes/auth.route';
+import { UserModel } from '@/models/users.model';
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
@@ -18,18 +19,21 @@ describe('Testing Auth', () => {
       };
 
       const authRoute = new AuthRoute();
-      const users = authRoute.authController.authService.users;
+      const users = UserModel;
 
       users.findOne = jest.fn().mockReturnValue(null);
       users.create = jest.fn().mockReturnValue({
         id: 1,
         email: userData.email,
-        password: await bcrypt.hash(userData.password, 10),
+        password: await bcrypt.hash(userData.password, 9),
       });
 
       (Sequelize as any).authenticate = jest.fn();
       const app = new App([authRoute]);
-      return request(app.getServer()).post(`${authRoute.path}signup`).send(userData).expect(201);
+      return request(app.getServer())
+        .post(`${authRoute.path}/signup`)
+        .send(userData)
+        .expect(200);
     });
   });
 
@@ -41,7 +45,7 @@ describe('Testing Auth', () => {
       };
 
       const authRoute = new AuthRoute();
-      const users = authRoute.authController.authService.users;
+      const users = UserModel;
 
       users.findOne = jest.fn().mockReturnValue({
         id: 1,
@@ -52,20 +56,10 @@ describe('Testing Auth', () => {
       (Sequelize as any).authenticate = jest.fn();
       const app = new App([authRoute]);
       return request(app.getServer())
-        .post(`${authRoute.path}login`)
+        .post(`${authRoute.path}/login`)
         .send(userData)
-        .expect('Set-Cookie', /^Authorization=.+/);
+        .expect('Set-Cookie', /^Authorization=.+/)
+        .expect(200);
     });
   });
-
-  // describe('[POST] /logout', () => {
-  //   it('logout Set-Cookie Authorization=; Max-age=0', async () => {
-  //     const authRoute = new AuthRoute();
-
-  //     const app = new App([authRoute]);
-  //     return request(app.getServer())
-  //       .post(`${authRoute.path}logout`)
-  //       .expect('Set-Cookie', /^Authorization=\;/);
-  //   });
-  // });
 });

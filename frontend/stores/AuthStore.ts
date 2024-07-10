@@ -28,7 +28,7 @@ const useAuthStore = defineStore('AuthStore', {
       this.formState.loading = true
 
       try {
-        const response = await useMyFetch().post(`/login`, this.form)
+        const response = await useMyFetch().post(`/auth/login`, this.form)
         const data = response.data?.data
         this.data.token = data.token
 
@@ -53,7 +53,7 @@ const useAuthStore = defineStore('AuthStore', {
       this.formState.loading = true
 
       try {
-        const response = await useMyFetch().post(`/signup`, this.form)
+        const response = await useMyFetch().post(`/auth/signup`, this.form)
         const data = response.data?.data
         this.data.token = data.token
 
@@ -74,7 +74,7 @@ const useAuthStore = defineStore('AuthStore', {
 
     async logoutUser() {
       try {
-        const response = await useMyFetch().post('/logout')
+        const response = await useMyFetch().post('/auth/logout')
 
         if (response.status === 200) {
           this.data.token = null
@@ -98,7 +98,7 @@ const useAuthStore = defineStore('AuthStore', {
 
     async getProfile() {
       try {
-        const response = await useMyFetch().post('/profile')
+        const response = await useMyFetch().post('/auth/profile')
         if (response.status === 200) {
           this.data = response.data
         } else {

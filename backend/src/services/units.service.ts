@@ -16,6 +16,11 @@ export class UnitService {
   public async findAllUnit(req: Request): Promise<DataResponseType> {
     let { name, uuid, page, per_page, order_column, order_direction }: UnitListFiltersType = req.body
 
+    page = page ? page : 1
+    per_page = per_page ? per_page : 10
+    order_column = order_column ? order_column : 'name'
+    order_direction = order_direction ? order_direction : 'ASC'
+
     let offset: number = 0
     offset = (+page - 1) * per_page;
 
@@ -30,8 +35,6 @@ export class UnitService {
       [Op.iLike]: `%${name}%` // name
     }
 
-    order_column = order_column ? order_column : 'name'
-    order_direction = order_direction ? order_direction : 'ASC'
     order = [[order_column, order_direction]]
 
     const data: Unit[] = await DB.Units
@@ -43,12 +46,9 @@ export class UnitService {
         order
       });
 
-    const count: any = await DB.Units
-      .findAndCountAll({
-        where
-      });
+    const countResult = await DB.Units.findAndCountAll({ where });
+    const total = Number(countResult?.count || 0);
 
-    const total = Number(count.count);
     const last = Math.ceil(total / per_page);
     const next_page = page < last ? Number(page) + 1 : null
 
