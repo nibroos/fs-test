@@ -9,6 +9,7 @@ import { Op } from 'sequelize';
 import { VendorListFiltersType } from '@/type/filters/VendorFiltersType';
 import { DataResponseType } from '@/type/ResponseType';
 import { cloneObject, flattenObject } from '@/utils/objectFormat';
+import { VendorModel } from '@/models/vendor.model';
 
 @Service()
 export class VendorService {
@@ -87,7 +88,12 @@ export class VendorService {
   }
 
   public async findAllVendorRaw(req: Request): Promise<DataResponseType> {
-    const { page, per_page }: PaginationRequestType = req.body
+    let { name, unit_id, uuid, page, per_page, order_column, order_direction }: VendorListFiltersType = req.body
+
+    page = page ? page : 1
+    per_page = per_page ? per_page : 10
+    order_column = order_column ? order_column : 'created_at'
+    order_direction = order_direction ? order_direction : 'ASC'
 
     let qBind: string = ''
     let offset: string | number = ''
@@ -98,12 +104,47 @@ export class VendorService {
       // qPaginate = `limit ${per_page} offset ${qOffset}`
     }
 
-    const data: Vendor[] = await DB.sq.query(`SELECT * FROM vendors limit :per_page offset :offset`, {
+    // const fetchColumns = async (table: string) => {
+    //   const columns = await DB.sq.query(
+    //     `SELECT column_name FROM information_schema.columns WHERE table_name = :table`,
+    //     {
+    //       replacements: { table },
+    //       type: QueryTypes.SELECT
+    //     }
+    //   );
+    //   return columns.map((col: { column_name: string }) => col.column_name);
+    // };
+
+    // const generateSelectClause = async (tables: string[]) => {
+    //   const columns = await Promise.all(tables.map(async (table) => {
+    //     const cols = await fetchColumns(table);
+    //     return cols.map(col => `${table}.${col} AS "${table}_${col}"`);
+    //   }));
+    //   return columns.flat().join(', ');
+    // };
+
+    // const tables = ['vendors', 'units'];
+    // const selectClause = await generateSelectClause(tables);
+
+    // const query = `
+    //   SELECT ${selectClause}
+    //   FROM vendors
+    //   LEFT JOIN units ON vendors.unit_id = units.id
+    // `;
+
+    // const results = await DB.sq.query(query, { type: QueryTypes.SELECT });
+    // console.log(results, 'results');
+
+    const data: Vendor[] = await DB.sq.query(`
+      SELECT * FROM vendors
+      limit :per_page offset :offset`, {
       type: QueryTypes.SELECT,
       replacements: { per_page, offset }
     });
 
-    const count: ResultCountType[] = await DB.sq.query(`SELECT count(*) as total FROM vendors`, {
+
+    const count: ResultCountType[] = await DB.sq.query(`
+      SELECT count(*) as total FROM vendors`, {
       type: QueryTypes.SELECT
     });
 
@@ -128,11 +169,6 @@ export class VendorService {
 
     const findVendor: Vendor = await this.findVendorByUuid(uuid);
 
-    // let flattenVendor = flattenObject(findVendor);
-    // console.log('flattenVendor', flattenVendor);
-    console.log('flattenVendor', findVendor);
-
-
     return findVendor;
   }
 
@@ -149,8 +185,6 @@ export class VendorService {
     const unit = await DB.Units.findOne({ where: { uuid: vendorData.unit_id } });
 
     const updateFields: UpdateVendorDto = { ...vendorData, unit_id: unit.id };
-
-
 
     await DB.Vendors.update({
       ...updateFields

@@ -14,8 +14,8 @@
     "lint:fix": "npm run lint -- --fix",
     "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod",
     "deploy:dev": "pm2 start ecosystem.config.js --only dev",
-    "migration:generate": "sequelize migration:generate --name",
-    "migration:run": "sequelize db:migrate"
+    "migration:generate": "npx sequelize-cli migration:generate --name",
+    "migration:run": "npx sequelize-cli db:migrate"
   },
   "dependencies": {
     "@sequelize/core": "^7.0.0-alpha.37",

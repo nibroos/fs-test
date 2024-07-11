@@ -16,9 +16,15 @@ const sq = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
     underscored: true,
     freezeTableName: true,
   },
+  dialectOptions: {
+    dateStrings: true,
+    typeCast: true,
+  },
   pool: {
+    max: 1000,
     min: 0,
-    max: 5,
+    idle: 200000,
+    acquire: 1000000,
   },
   logQueryParameters: NODE_ENV === 'development',
   logging: (query, time) => {
