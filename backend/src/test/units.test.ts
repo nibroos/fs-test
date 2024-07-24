@@ -2,20 +2,21 @@ import { DB } from '@database';
 import { Request, Response } from 'express';
 import { UnitService } from '@/services/units.service';
 
-// Mocking the Units model
-jest.mock('@database', () => ({
-  DB: {
-    Units: {
-      findAll: jest.fn(),
-      findAndCountAll: jest.fn()
-    }
-  }
-}));
-
 describe('findAllUnit', () => {
   const { findAllUnit } = new UnitService();
 
   let req: Partial<Request>;
+  let mockFindAll: jest.Mock;
+  let mockFindAndCountAll: jest.Mock;
+
+  beforeAll(() => {
+    mockFindAll = jest.fn();
+    mockFindAndCountAll = jest.fn();
+
+    // Manually assigning the mock implementations
+    DB.Units.findAll = mockFindAll;
+    DB.Units.findAndCountAll = mockFindAndCountAll;
+  });
 
   beforeEach(() => {
     req = {
@@ -28,6 +29,8 @@ describe('findAllUnit', () => {
         order_direction: 'ASC'
       }
     };
+    mockFindAll.mockReset();
+    mockFindAndCountAll.mockReset();
   });
 
   it('should return paginated units', async () => {
@@ -37,8 +40,8 @@ describe('findAllUnit', () => {
     ];
     const mockCount = { count: 2, rows: mockData };
 
-    (DB.Units.findAll as jest.Mock).mockResolvedValue(mockData);
-    (DB.Units.findAndCountAll as jest.Mock).mockResolvedValue(mockCount);
+    mockFindAll.mockResolvedValue(mockData);
+    mockFindAndCountAll.mockResolvedValue(mockCount);
 
     const result = await findAllUnit(req as Request);
 
@@ -66,8 +69,8 @@ describe('findAllUnit', () => {
     ];
     const mockCount = { count: 2, rows: mockData };
 
-    (DB.Units.findAll as jest.Mock).mockResolvedValue(mockData);
-    (DB.Units.findAndCountAll as jest.Mock).mockResolvedValue(mockCount);
+    mockFindAll.mockResolvedValue(mockData);
+    mockFindAndCountAll.mockResolvedValue(mockCount);
 
     const result = await findAllUnit(req as Request);
 
@@ -97,9 +100,8 @@ describe('findAllUnit', () => {
     ];
     const mockCount = { count: 2, rows: mockData };
 
-    // Mocking the database calls
-    (DB.Units.findAll as jest.Mock).mockResolvedValue(mockData);
-    (DB.Units.findAndCountAll as jest.Mock).mockResolvedValue(mockCount);
+    mockFindAll.mockResolvedValue(mockData);
+    mockFindAndCountAll.mockResolvedValue(mockCount);
 
     const result = await findAllUnit(req as Request);
 
